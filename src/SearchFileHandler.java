@@ -1,12 +1,12 @@
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.wm.ex.WindowManagerEx;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -34,12 +34,11 @@ public class SearchFileHandler implements HttpHandler {
                 ApplicationManager.getApplication().invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        String msg = "Found " + files.length + " files:\r\n";
-                        for (PsiFile file : files) {
-                            msg += "- " + file.getName() + "\r\n";
+                        if (files.length > 0) {
+                            OpenFileDescriptor openFileDescriptor = new OpenFileDescriptor(project, files[0].getVirtualFile(), 0, 0);
+                            openFileDescriptor.navigate(true);
+                            WindowManagerEx.getInstance().findVisibleFrame().requestFocus();
                         }
-
-                        Messages.showMessageDialog(msg, "Search Result", Messages.getInformationIcon());
                     }
                 });
             }
