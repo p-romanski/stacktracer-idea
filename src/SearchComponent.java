@@ -1,6 +1,5 @@
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.search.PsiShortNamesCache;
 import com.sun.net.httpserver.HttpServer;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +9,7 @@ import java.net.InetSocketAddress;
 public class SearchComponent implements ProjectComponent {
 
     private Project project;
+
     public SearchComponent(Project project) {
         this.project = project;
     }
