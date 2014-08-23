@@ -1,46 +1,40 @@
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ex.WindowManagerEx;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.PsiShortNamesCache;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class SearchFileHandler implements HttpHandler {
+public class OpenHandler implements HttpHandler {
 
-    private Project project;
+    private List<Searcher> searchers;
 
-    public SearchFileHandler(Project project) {
-        this.project = project;
+    public OpenHandler() {
+        this.searchers = new ArrayList<Searcher>();
+    }
+
+    public void addSearcher(Searcher searcher) {
+        searchers.add(searcher);
     }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         final Map<String, String> params = queryToMap(httpExchange.getRequestURI().getQuery());
 
+        if (!params.containsKey("q")) {
+            return;
+        }
+
         ApplicationManager.getApplication().runReadAction(new Runnable() {
             @Override
             public void run() {
-                final PsiFile[] files = params.containsKey("q") ?
-                        PsiShortNamesCache.getInstance(project).getFilesByName(params.get("q")) :
-                        new PsiFile[]{};
-
-                ApplicationManager.getApplication().invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (files.length > 0) {
-                            OpenFileDescriptor openFileDescriptor = new OpenFileDescriptor(project, files[0].getVirtualFile(), 0, 0);
-                            openFileDescriptor.navigate(true);
-                            WindowManagerEx.getInstance().findVisibleFrame().requestFocus();
-                        }
-                    }
-                });
+                for (Searcher s : searchers) {
+                    s.search(params.get("q"));
+                }
             }
         });
 

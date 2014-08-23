@@ -1,17 +1,15 @@
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.sun.net.httpserver.HttpServer;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
 
 public class SearchComponent implements ProjectComponent {
 
-    private Project project;
+    private Searcher searcher;
 
     public SearchComponent(Project project) {
-        this.project = project;
+        this.searcher = new ProjectFileSearcher(project);
     }
 
     public void initComponent() {
@@ -28,15 +26,8 @@ public class SearchComponent implements ProjectComponent {
     }
 
     public void projectOpened() {
-        HttpServer server = null;
-        try {
-            server = HttpServer.create(new InetSocketAddress(8000), 0);
-            server.createContext("/open", new SearchFileHandler(project));
-            server.setExecutor(null);
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ServerComponent server = ApplicationManager.getApplication().getComponent(ServerComponent.class);
+        server.addSearcher(searcher);
     }
 
     public void projectClosed() {

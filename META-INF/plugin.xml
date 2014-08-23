@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.yourcompany.unique.plugin.id</id>
   <name>StackTraceR IDEA</name>
-  <version>1.0</version>
+  <version>1.0.2</version>
   <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
   <description><![CDATA[
@@ -30,6 +30,9 @@
 
   <application-components>
     <!-- Add your application components here -->
+      <component>
+          <implementation-class>ServerComponent</implementation-class>
+      </component>
   </application-components>
 
   <project-components>
